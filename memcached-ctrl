@@ -57,18 +57,22 @@ class MemCacheServerStarter
   
   def start_server(raw_config_entry)
     config_entry=raw_config_entry.symbolize_keys
-    cmd="#{@options[:memcached_cmd]} -d -u #{config_entry[:user]} -l #{config_entry[:address]} -m #{config_entry[:memory]} -p #{config_entry[:port]} -U #{config_entry[:port]} -P #{config_entry[:pidfile]}"
+    cmd="#{@options[:memcached_cmd]} -u #{config_entry[:user]} -l #{config_entry[:address]} -m #{config_entry[:memory]} -p #{config_entry[:port]} -U #{config_entry[:port]}"
     if @options[:preview]
       puts cmd
     else
-      system(cmd)
+      pid=Process.fork do 
+        exec(cmd)
+      end
+      system("echo '#{pid}' >> #{config_entry[:pidfile]}")
+      Process.detach(pid)
     end
   end
   
   def stop_server(raw_config_entry)
     config_entry=raw_config_entry.symbolize_keys
     raise "Unable to find pidfile #{config_entry[:pidfile]}" unless File.exist?(config_entry[:pidfile])
-    cmd="kill `cat #{config_entry[:pidfile]}`"
+    cmd="kill `cat #{config_entry[:pidfile]}`;rm #{config_entry[:pidfile]}"
     system(cmd)
     
   end
@@ -130,6 +134,6 @@ rescue Exception=>e
 end
 
 starter.execute
-
+exit
 
 
