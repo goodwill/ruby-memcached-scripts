@@ -19,13 +19,13 @@ class MemCacheServerStarter
     
     @optparser=OptionParser.new do |opts|
       opts.banner = "Usage: #{File.basename(__FILE__)} (start|stop|restart) [options]"
-      opts.on("-cmd", "--command COMMAND", "Specify where to get memcache, default seek from environment") do |v|
+      opts.on("-C", "--command COMMAND", "Specify where to get memcache, default seek from environment") do |v|
         @options[:memcached_cmd]=v
       end
       opts.on("-i", "--instance INSTANCE_NAME", "Specify instance name to take action on") do |v|
         @options[:instance]=v
       end
-      opts.on('-c', '--config CONFIG_FILE', "Specify configuration file to use") do |v|
+      opts.on('-c', '--config CONFIG_FILE', "Specify configuration file to use, default to /etc/memcached.yml") do |v|
         @options[:config_file]=v
       end
       opts.on('-p', '--preview', "Preview commands instead of executing") do
@@ -56,11 +56,10 @@ class MemCacheServerStarter
   
   def start_server(raw_config_entry)
     config_entry=raw_config_entry.symbolize_keys
-    cmd="#{@options[:memcached_cmd]} -d -u #{config_entry[:user]} -l #{config_entry[:address]} -m #{config_entry[:memory]} -p #{config_entry[:port]} -P #{config_entry[:pidfile]}"
+    cmd="#{@options[:memcached_cmd]} -d -u #{config_entry[:user]} -l #{config_entry[:address]} -m #{config_entry[:memory]} -p #{config_entry[:port]} -U #{config_entry[:port]} -P #{config_entry[:pidfile]}"
     if @options[:preview]
       puts cmd
     else
-      puts "execute memcached"
       system(cmd)
     end
   end
@@ -68,7 +67,7 @@ class MemCacheServerStarter
   def stop_server(raw_config_entry)
     config_entry=raw_config_entry.symbolize_keys
     raise "Unable to find pidfile #{config_entry[:pidfile]}" unless File.exist?(config_entry[:pidfile])
-    cmd="kill `cat #{config_entry[:pidfile]}`;rm #{config_entry[:pidfile]}"
+    cmd="kill `cat #{config_entry[:pidfile]}`"
     system(cmd)
     
   end
@@ -97,7 +96,6 @@ class MemCacheServerStarter
       else
         stop_server(@instances[@options[:instance]])
       end
-
     when 'restart'
       unless @options.has_key?(:instance)
         @instances.each do |key, instance|

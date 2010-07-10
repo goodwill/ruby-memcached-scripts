@@ -4,4 +4,9 @@ default:
     address: 127.0.0.1
     memory: 64
     pidfile: /var/run/memcached-11221.pid
-    
+another_instance:
+    port: 11222
+    user: daemon
+    address: 127.0.0.1
+    memory: 64
+    pidfile: /var/run/memcached-11222.pid
