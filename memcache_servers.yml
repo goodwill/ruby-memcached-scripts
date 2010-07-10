@@ -1,0 +1,7 @@
+default:
+    port: 11221
+    user: daemon
+    address: 127.0.0.1
+    memory: 64
+    pidfile: /var/run/memcached-11221.pid
+    
