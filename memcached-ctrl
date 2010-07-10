@@ -2,6 +2,7 @@
 # ARG list: (start|stop|restart) (-i instance_name) (-c config_file)
 require 'rubygems'
 require 'optparse'
+require 'yaml'
 class Hash
   def symbolize_keys
     inject({}) do |options, (key, value)|
