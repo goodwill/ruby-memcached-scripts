@@ -34,7 +34,7 @@ class MemCacheServerStarter
       end
       opts.on_tail("-h", "--help", "Show this message") do 
         puts opts
-        exit
+        Kernel.exit!
       end
     end
     
